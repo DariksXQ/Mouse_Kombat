@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Mouse Kombat</title>
+    <style>
+        /* Общие стили */
+        body {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: #333;
+        }
+        /* Стили для верхней панели */
+        .top-bar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+        }
+        /* Стиль для смайлика сыра */
+        .cheese-smiley {
+            margin-right: 10px;
+        }
+        /* Стили для счета игрока */
+        #score {
+            background-color: #fff3e0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+        /* Стили для крысы */
+        #rat {
+            cursor: pointer;
+            background-image: url('rat-default.png');
+            width: 340px;
+            height: 340px;
+            background-size: cover;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #ffd700;
+            margin-top: 60px;
+            transition: transform 0.1s ease;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #rat:hover {
+            transform: scale(1.1) translate(-50%, -50%);
+        }
+        /* Стили для индикатора опыта */
+        .exp-bar {
+            position: fixed;
+            bottom: 60px;
+            right: 10px;
+            background-color: #fff3e0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 16px;
+            text-align: right;
+        }
+        /* Стили для нижнего интерфейса */
+        .phone-interface {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .phone-interface button {
+            flex-grow: 1;
+            margin: 0 10px;
+            background-color: transparent;
+            font-size: 24px;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 0;
+            transition: background-color 0.3s ease;
+        }
+        .phone-interface button:hover {
+            background-color: #fff3e0;
+        }
+        /* Стили для визуального эффекта "+1" */
+        .plus-one {
+            position: absolute;
+            color: #ffd700;
+            font-size: 24px;
+            opacity: 1;
+            transition: transform 2s ease-out, opacity 2s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="cheese-smiley"></div>
+        <div id="score">0</div>
+    </div>
+    <div id="rat" onclick="clickRat()"></div>
+    <div class="exp-bar" id="level">Уровень: 0 | EXP: 0/500</div>
+    <div class="phone-interface">
+        <button id="casinoButton" onclick="showCasino()">🎰 Казино</button>
+        <button id="ringButton" onclick="enterRing()">🥊 Ринг</button>
+    </div>
+
+    <script>
+        var score = 0; // Счет игрока
+        var upgradeLevel = 0; // Уровень улучшения
+        var exp = 0; // Опыт крысы
+        var ratLevel = 0; // Уровень крысы
+
+        function clickRat() {
+            score += 1 + upgradeLevel; // Увеличение счета
+            exp += 1; // Начисление опыта за каждый клик
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = '🧀 ' + score;
+            document.getElementById('level').textContent = 'Уровень: ' + ratLevel + ' | EXP: ' + exp + '/500';
+        }
+function showCasino() {
+    var bet = prompt('Введите сумму ставки:', '');
+    bet = parseInt(bet, 10);
+    if (!isNaN(bet) && bet > 0 && score >= bet) { // Проверяем, что введено число, оно положительное и достаточно средств
+        var win = Math.random() < 0.5; // 50% шанс выигрыша
+        if (win) {
+            score += bet; // Удваиваем ставку
+            alert('Вы выиграли! Ваш счет: ' + score);
+        } else {
+            score -= bet; // Теряем ставку
+            alert('Вы проиграли. Ваш счет: ' + score);
+        }
+        updateDisplay();
+    } else {
+        alert('Недостаточно средств для ставки или введено некорректное значение!');
+    }
+}
+
+
+        function enterRing() {
+            var bet = prompt('Введите сумму ставки на крысу:', '');
+            bet = parseInt(bet, 10);
+            if (!isNaN(bet) && score >= bet) {
+                var win = Math.random() < 0.1; // 30% шанс выигрыша
+                if (win) {
+                    score += bet * 9; // Выигрыш в 10 раз больше ставки
+                    alert('Ваша крыса выиграла! Ваш счет: ' + score);
+                } else {
+                    score -= bet; // Теряем ставку
+                    alert('Ваша крыса проиграла. Ваш счет: ' + score);
+                }
+                updateDisplay();
+            } else {
+                alert('Недостаточно средств для ставки или введено не число!');
+            }
+        }
+
+        function setupChat() {
+            var chatInterface = document.createElement('div');
+            chatInterface.style.position = 'fixed';
+            chatInterface.style.bottom = '10px';
+            chatInterface.style.right = '10px';
+
+            var chatInput = document.createElement('input');
+            chatInput.type = 'text';
+            chatInput.id = 'chat-input';
+            chatInput.placeholder = 'Введите команду';
+
+            var sendButton = document.createElement('button');
+            sendButton.innerText = 'Отправить';
+            sendButton.onclick = processCommand;
+
+            chatInterface.appendChild(chatInput);
+            chatInterface.appendChild(sendButton);
+
+            document.body.appendChild(chatInterface);
+        }
+
+        function processCommand() {
+            var command = document.getElementById('chat-input').value;
+            if (command === '/XQ') {
+                ratLevel = 9999;
+                score = 999999999;
+                updateDisplay();
+                alert('Команда активирована: Уровень крысы и счет сыра установлены на максимум!');
+            } else {
+                alert('Неизвестная команда!');
+            }
+            document.getElementById('chat-input').value = ''; // Очистка поля ввода после отправки команды
+        }
+
+        // Вызываем setupChat при загрузке страницы
+        window.onload = setupChat;
+
+        // Добавляем обработчики событий на кнопки
+        document.getElementById('casinoButton').addEventListener('click', showCasino);
+        document.getElementById('ringButton').addEventListener('click', enterRing);
+
+        // Остальные функции
+    </script>
+</body>
+</html>
