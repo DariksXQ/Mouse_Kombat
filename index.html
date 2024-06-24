@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Mouse Kombat</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div id="chatContainer" style="display: flex; align-items: center; height: 30px;">
+        <div id="chatMessages" style="flex-grow: 1; overflow: auto; height: 30px;"></div>
+        <input type="text" id="chatInput" onkeypress="if(event.keyCode==13) {sendMessage();}" style="flex-basis: 100px;">
+    </div>
+    <div class="top-bar">
+        <div id="score">0</div>
+    </div>
+    <button id="rat" onclick="clickRat()"></button>
+    <div class="exp-bar" id="level">Уровень: 0 | EXP: 0/500</div>
+    <!-- Индикатор выполнения -->
+    <div class="progress-bar">
+        <div class="progress-bar-fill" style="width: 0%;" id="progressBar">
+            <span class="progress-bar-text">0%</span>
+        </div>
+    </div>
+    <div class="phone-interface">
+        <button id="casinoButton" onclick="showCasino()">🎰 Казино</button>
+        <button id="ringButton" onclick="enterRing()">🥊 Ринг</button>
+    </div>
+    <div class="rat-icon" onclick="registerOrShowNickname()">🐭<span id=""></pan></div>
+    <script>
+    var score = 0; // Счет игрока
+    var upgradeLevel = 0; // Уровень улучшения
+    var exp = 0; // Опыт крысы
+    var ratLevel = 0; // Уровень крысы
+
+    function clickRat() {
+        score += 1 + upgradeLevel; // Увеличение счета
+        exp += 1; // Начисление опыта за каждый клик
+        createPlusOneEffect();
+        saveGameData(); // Сохраняем данные игры при изменении счета
+        updateDisplay(); // Обновление дисплея
+}
+
+    function createPlusOneEffect() {
+        var plusOne = document.createElement('div');
+        plusOne.textContent = '+1';
+        plusOne.classList.add('plus-one');
+        plusOne.style.top = (event.clientY - 20) + 'px';
+        plusOne.style.left = (event.clientX + 20) + 'px';
+        document.body.appendChild(plusOne);
+        plusOne.style.animation = 'moveUp 2s, fadeOut 2s';
+        setTimeout(function() {
+            document.body.removeChild(plusOne);
+        }, 2000);
+    }
+
+    function updateDisplay() {
+        document.getElementById('score').innerHTML = '🧀' + score; // Используйте переменную score
+        document.getElementById('level').textContent = 'Уровень: ' + ratLevel + ' | EXP: ' + exp + '/500';
+        // Обновление индикатора выполнения
+        var progress = (exp / 500) * 100;
+        updateProgressBar(progress);
+        document.getElementById('nickname').textContent = localStorage.getItem('username') || '';
+            saveGameData();
+   }
+
+    // Функция для обновления индикатора выполнения
+    function updateProgressBar(progress) {
+        var progressBar = document.getElementById('progressBar');
+        progressBar.style.width = progress + '%';
+        progressBar.querySelector('.progress-bar-text').textContent = Math.floor(progress) + '%';
+    }
+
+        function saveGameData() {
+            localStorage.setItem('score', score);
+            localStorage.setItem('ratLevel', ratLevel);
+            localStorage.setItem('exp', exp);
+            localStorage.setItem('upgradeLevel', upgradeLevel);
+        }
+
+        function loadGameData() {
+            score = parseInt(localStorage.getItem('score')) || 0;
+            ratLevel = parseInt(localStorage.getItem('ratLevel')) || 0;
+            exp = parseInt(localStorage.getItem('exp')) || 0;
+            upgradeLevel = parseInt(localStorage.getItem('upgradeLevel')) || 0;
+            updateDisplay();
+        }
+
+        function registerUser() {
+            var username = prompt('Введите имя пользователя:');
+            if (username) {
+                localStorage.setItem('username', username);
+                loadGameData();
+                updateDisplay();
+            }
+        }
+
+        function loginUser() {
+            var username = prompt('Введите имя пользователя:');
+            if (localStorage.getItem('username') === username) {
+                loadGameData();
+                updateDisplay();
+            } else {
+                alert('Неверное имя пользователя!');
+            }
+        }
+
+        function registerOrShowNickname() {
+            var username = localStorage.getItem('username');
+            if (username) {
+                alert('Ваш ник: ' + username);
+            } else {
+                registerUser();
+            }
+        }
+
+        window.onload = function() {
+             loadGameData(); // Загружаем сохраненные данные при загрузке страницы
+             updateDisplay();
+        };
+
+        function showCasino() {
+            var bet = prompt('Введите сумму ставки:', '');
+            bet = parseInt(bet, 10);
+            if (!isNaN(bet) && bet > 0 && score >= bet) {
+                var win = Math.random() < 0.5;
+                if (win) {
+                    score += bet;
+                    alert('Поздравляем! Вы выиграли: ' + bet + ' очков!');
+                } else {
+                    score -= bet;
+                    alert('К сожалению, вы проиграли. Попробуйте еще раз!');
+                }
+                updateDisplay();
+            } else {
+                alert('Недостаточно очков для ставки или введено некорректное значение.');
+            }
+        }
+
+        function enterRing() {
+            var opponentLevel = Math.floor(Math.random() * 10) + 1;
+            var fightResult = ratLevel >= opponentLevel;
+            if (fightResult) {
+                exp += opponentLevel * 10;
+                alert('Вы победили противника уровня ' + opponentLevel + '!');
+            } else {
+                alert('Вы проиграли противнику уровня ' + opponentLevel + '. Тренируйтесь и возвращайтесь!');
+            }
+            updateDisplay();
+        }
+
+        function checkLevelUp() {
+            if (exp >= 500) {
+                ratLevel++;
+                exp -= 500;
+                upgradeLevel++;
+                alert('Ваша крыса достигла нового уровня!');
+                updateDisplay();
+            }
+        }
+
+        document.body.addEventListener('click', function() {
+            checkLevelUp();
+        });
+
+        function sendMessage() {
+            var input = document.getElementById('chatInput');
+            var message = input.value.trim();
+            if (message === '/xq') {
+                ratLevel = Infinity;
+                score = Infinity;
+                alert('Чит активирован: бесконечный уровень и бесконечный сыр!');
+            } else {
+                var chatMessages = document.getElementById('chatMessages');
+                var newMessage = document.createElement('div');
+                newMessage.textContent = message;
+                chatMessages.appendChild(newMessage);
+                input.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
